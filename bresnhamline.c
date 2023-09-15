@@ -2,11 +2,9 @@
 #include<stdlib.h>
 #include<GL/glut.h>
 
+int xi,yi,xj,yj,lineType,i;
 
-int xi,yi,xj,yj,ch,i;
-
-
-void BRESENHAMLINE(int xa, int ya, int xb, int yb, int ch);
+void BRESENHAMLINE(int xa, int ya, int xb, int yb, int lineType);
 void mouse(int button, int state, int x, int y);
 void Draw();
 
@@ -15,8 +13,7 @@ int main(int argc , char** argv)
 {
     printf("\nWhich Type of Line You Want to Draw ");
     printf("\n1.Simple Line \n2.Dotted Line \n3.Dashed Line \n4.Solid Line \n> > > ");
-    scanf("%d",&ch);
-
+    scanf("%d",&lineType);
     glutInit(&argc,argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
     glutInitWindowSize(640,480);
@@ -28,7 +25,6 @@ int main(int argc , char** argv)
     glutDisplayFunc(Draw);
     glutMouseFunc(mouse);
     glutMainLoop();
-
     return 0;
 }
 
@@ -42,11 +38,20 @@ void mouse(int button, int state, int x, int y) {           //mouse function tak
     	xj=x;
         yj=y;
         glColor3f(1.0,0.0,1.0);
-	    BRESENHAMLINE(xi, yi, xj, yj, ch);	
+	    BRESENHAMLINE(xi, yi, xj, yj, lineType);	
     }
+    if (button == GLUT_RIGHT_BUTTON && state == GLUT_UP)
+	{ // right click to change the linetype while drawing.
+		if (lineType == 4)
+		{
+			lineType = 1;
+			glPointSize(1);
+		}
+		else
+			lineType++;
+	}
 }
-
-void BRESENHAMLINE(int xa, int ya, int xb, int yb, int ch)
+void BRESENHAMLINE(int xa, int ya, int xb, int yb, int lineType)
 {
     int d,c,r,f,dx,dy;
     dx = xb-xa;
@@ -66,7 +71,6 @@ void BRESENHAMLINE(int xa, int ya, int xb, int yb, int ch)
             r=yb;
             f=xa;
         }
-        glBegin(GL_POINTS);
         glVertex2d(c,r);
         i=0;
         while(f>c)
@@ -92,17 +96,20 @@ void BRESENHAMLINE(int xa, int ya, int xb, int yb, int ch)
 
             i++;
             //Simple Line
-            if(ch==1) {
+            if(lineType==1) {
+            	glBegin(GL_POINTS);
                 glVertex2d(c,r);
             }
             //Dotted Line
-            else if(ch==2){
+            else if(lineType==2){
+            	glBegin(GL_POINTS);
                 if(i%2==0){
                     glVertex2d(c,r);
                 }
             }
             //Dashed line
-            else if(ch==3){
+            else if(lineType==3){
+            	glBegin(GL_POINTS);
                 if(i%8==0)
                 {
                     i = i+4;
@@ -113,8 +120,9 @@ void BRESENHAMLINE(int xa, int ya, int xb, int yb, int ch)
                 }
             }
             //Solid Line
-            else if(ch==4){
+            else if(lineType==4){
                 glPointSize(4.0);
+                glBegin(GL_POINTS);
                 glVertex2d(c,r);
             }
         }
@@ -160,17 +168,17 @@ void BRESENHAMLINE(int xa, int ya, int xb, int yb, int ch)
             }
             i++;
             //Simple Line
-            if(ch==1) {
+            if(lineType==1) {
                 glVertex2d(c,r);
             }
             //Dotted Line
-            else if(ch==2){
+            else if(lineType==2){
                 if(i%2==0){
                     glVertex2d(c,r);
                 }
             }
             //Dashed line
-            else if(ch==3){
+            else if(lineType==3){
                 if(i%8==0)
                 {
                     i = i+4;
@@ -181,7 +189,7 @@ void BRESENHAMLINE(int xa, int ya, int xb, int yb, int ch)
                 }
             }
             //Solid Line
-            else if(ch==4){
+            else if(lineType==4){
                 glPointSize(4.0);
                 glVertex2d(c,r);
             }
@@ -195,7 +203,6 @@ void Draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glBegin(GL_POINTS);
-    
     BRESENHAMLINE(0,240,640,240,1);
     BRESENHAMLINE(320,0,320,640,1);
     int i=0;
@@ -205,9 +212,7 @@ void Draw()
         BRESENHAMLINE(317,i,323,i,1);
         i+=20;
     }
-
-    BRESENHAMLINE(xi,yi,xj,yj,ch);
-    
+    BRESENHAMLINE(xi,yi,xj,yj,lineType);
     glEnd();
     glFlush();
 }
